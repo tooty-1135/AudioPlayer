@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLAYER</title>
+    <style>
+        body {
+            background-color: #0000;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            transition: 1.5s ease-in-out;
+        }
+
+        * {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #fff;
+            transition: .3s cubic-bezier(0, .5, 0, 1);
+        }
+    </style>
+</head>
+
+<body>
+    <style>
+        .bdft-blur {
+            backdrop-filter: blur(30px);
+        }
+
+        .back-image {
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+    </style>
+
+
+    <div id="mousecurs">
+        <div class="main"></div>
+        <div class="focespoint"></div>
+    </div>
+
+    <style>
+        #mousecurs {
+            z-index: 200;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+            pointer-events: none;
+            transition: .3s cubic-bezier(0, .5, 0, 1) opacity 1s ease-in-out;
+        }
+
+        #mousecurs>* {
+            top: 50%;
+            left: 50%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            transition: .3s ease-in-out;
+        }
+
+        #mousecurs>.main {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 4px solid #000;
+        }
+
+        #mousecurs>.focespoint {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+        }
+    </style>
+
+    <div id="close-bg">
+        <div class="bg back-image"></div>
+        <style>
+            #close-bg {
+                opacity: 0;
+                width: 110%;
+                height: 110%;
+                position: absolute;
+                top: -5%;
+                left: -5%;
+                display: flex;
+                align-items: center;
+                background-color: rgb(0 0 0);
+            }
+
+            #close-bg>.bg {
+                opacity: 0;
+                width: 100%;
+                height: 100%;
+                transform: scale(1.1);
+                background-image: url(default-image/thumbnail.png);
+                opacity: .8;
+                transition: .3s cubic-bezier(0, .5, 0, 1) opacty .5s ease-in-out;
+            }
+        </style>
+    </div>
+
+    <div id="box">
+        <div class="box">
+            <div id="title" class="bdft-blur">
+                <div class="txt">
+                    <div class="txt">Audio Player</div>
+                </div>
+                <div class="btns">
+                    <div class=" btn small" id="btn-small"></div>
+                    <div class=" btn close" id="btn-close"></div>
+                </div>
+                <style>
+                    #title>.btns {
+                        display: flex;
+                        padding: 0 5px;
+                    }
+
+                    #title>.btns>.btn {
+                        margin: 5px;
+                        height: 15px;
+                        width: 15px;
+                        background-color: #fff;
+                        border-radius: 50%;
+                        transform: rotate(45deg);
+                        transition: .1s ease-in-out;
+                    }
+
+                    #title>.btns>.btn:hover {
+                        transform: rotate(0deg);
+                        border-radius: 20%;
+                    }
+
+                    #title>.btns>.close:hover {
+                        background-color: #f00;
+                    }
+
+                    #title>.btns>.small:hover {
+                        background-color: #ff0;
+                    }
+                </style>
+            </div>
+            <main id="main">
+                <div class="main-box main">
+
+                    <div class="vido">
+                        <div class="thumbnail back-image"></div>
+                        <div style="transition-delay: 0.1s;">
+                            <a class="title" id="name2" target="_blank">NONE</a>
+                        </div>
+                        <div class="text" id="create-date" style="transition-delay: 0.2s;">建立日期：-</div>
+
+                        <style>
+                            #main>.main>.vido .thumbnail {
+                                width: 380px;
+                                height: 214px;
+                                border: 4px solid #000;
+                                border-radius: 10px;
+                                background-image: url(default-image/thumbnail.png);
+                                transition: .3s cubic-bezier(0, .5, 0, 1) background-image 1s ease-out;
+                            }
+
+                            #main>.main>.vido .title {
+                                margin: 5px 0;
+                                font-size: 20px;
+                            }
+
+                            #main>.main>.vido>*:not(.loading) {
+                                margin: 10px 20px;
+                                opacity: 1;
+                                pointer-events: auto;
+                            }
+
+                            #main>.main>.vido>* {
+                                margin: 10px 0px;
+                                opacity: .5;
+                                pointer-events: none;
+                            }
+                        </style>
+
+                    </div>
+                    <canvas id="canvas"></canvas>
+                    <style>
+                        #canvas {
+                          position: fixed;
+                          left: 0;
+                          top: 60%;
+                          width: 100%;
+                          height: 40%;
+                        }
+                    </style>
+                    <script src="./vis.js"></script>
+                    <div class="chanel bdft-blur">
+                        <a class="name" id="name">NONE</a>
+                        <style>
+                            #main>.main>.chanel>.name {
+                                margin: auto 30px;
+                                font-size: 30px;
+                            }
+                        </style>
+                        <audio id="audio" src="" controls></audio>
+                        <script src="./vis.js"></script>
+                        <div class="fileinput-button">
+                            檔案選擇<input  type="file" accept="audio/*" onchange="change()" id="file">
+                        </div>
+                        <script>
+                            function change() {
+                                var file = document.getElementById("file").files[0];
+
+                                document.getElementById("name").innerHTML = file.name;
+                                document.getElementById("name2").innerHTML = file.name;
+                                document.getElementById("create-date").innerHTML = "建立日期：" + file.lastModifiedDate.toLocaleString();
+
+                            }
+                        </script>
+                        <style>
+                            #audio {
+                                width: 70%;
+                            }
+                            .fileinput-button {
+                                position: absolute;
+                                overflow: hidden;
+                                background: #fa0000;
+                                width: 70px;
+                                height: 30px;
+                                color: #fff;
+                                font-size: 14px;
+                                text-align: center;
+                                border: 0;
+                                border-radius: 5%;
+                                line-height: 30px;
+                                display: block;
+                                right: 5%;
+                            }
+
+                            .fileinput-button:hover {
+                                background: #ff505093;
+                            }
+
+                            .fileinput-button input {
+                                position: absolute;
+                                top: 0;
+                                right: 0;
+                                margin: 0;
+                                opacity: 0;
+                                font-size: 200px;
+                                direction: ltr;
+                                cursor: pointer;
+                            }
+
+                            /* Fixes for IE < 8 */
+                            @media screen\9 {
+                                .fileinput-button input {
+                                    filter: alpha(opacity=0);
+                                    font-size: 100%;
+                                    height: 100%;
+                                }
+                            }
+                        </style>
+                    </div>
+                    <style>
+                        #main>.main>.chanel,
+                        #main>.main>.vido {
+                            padding: 20px;
+                        }
+
+                        #main>.main>.chanel {
+                            background-color: #0005;
+                            outline: 4px solid #000;
+                            display: flex;
+                            align-items: center;
+                        }
+
+                        #main>.main>.chanel:hover {
+                            box-shadow: 0 -10px 20px #0008;
+                            background-color: #0008;
+                        }
+                    </style>
+                    <style>
+                        #main>.main {
+                            display: grid;
+                            grid-template-rows: auto 1fr auto;
+                            grid-template-areas:
+                                "keyword"
+                                "vido"
+                                "chanel";
+                            overflow: hidden;
+                        }
+
+                        #main>.main>.vido {
+                            grid-area: vido;
+                        }
+
+                        #main>.main>.chanel {
+                            grid-area: chanel;
+                        }
+                    </style>
+                </div>
+                <style>
+                    #main {
+                        display: grid;
+                        grid-template-columns: 1fr;
+                        grid-template-rows: 1fr;
+                        grid-template-areas: "main-box";
+                    }
+
+                    #main>.main-box {
+                        grid-area: main-box;
+                    }
+
+
+                    #main>.main {
+                        z-index: 1;
+                    }
+
+                    #main>.key {
+                        z-index: 100;
+                    }
+
+                    #main>.ytsring {
+                        z-index: 200;
+                    }
+                </style>
+            </main>
+        </div>
+        <div class="bg-gradient">
+        </div>
+        <div id="bg">
+            <div class="bg back-image"></div>
+        </div>
+        <img id="bg-img" src="" hidden>
+        <canvas id="canvas2"></canvas>
+
+        <style>
+            #box {
+                width: calc(100% - 8px);
+                height: calc(100% - 8px);
+                position: absolute;
+                transform: translate(-50%, -100%);
+                top: 100%;
+                left: 50%;
+                border-radius: 10px;
+                background-color: #0008;
+                border: 4px solid rgb(0 0 0);
+                overflow: hidden;
+                transition: .6s cubic-bezier(0, .5, 0, 1);
+            }
+
+            #box>.box {
+                z-index: 3;
+                width: 100%;
+                height: 100%;
+                top: 50%;
+                left: 50%;
+                position: absolute;
+                transform: translate(-50%, -50%);
+            }
+
+            #box>.bg-gradient {
+                z-index: 1;
+                top: 0%;
+                left: 0%;
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgb(0, 0, 0);
+                background: linear-gradient(90deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 65%);
+            }
+
+            #box>.bg-txt {
+                z-index: 2;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                position: absolute;
+                text-align: center;
+                font-size: 100px;
+                letter-spacing: 50px;
+                opacity: .2;
+                width: 1000%;
+            }
+
+            #title {
+                background-color: #0003;
+                outline: 4px solid #000;
+                overflow: hidden;
+            }
+
+            #title>.txt {
+                -webkit-app-region: drag;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #title>.txt>.txt {
+                font-weight: 500;
+                letter-spacing: 5px;
+            }
+
+            #bg {
+                z-index: 0;
+                width: 110%;
+                height: 110%;
+                position: absolute;
+                top: -5%;
+                left: -5%;
+                display: flex;
+                align-items: center;
+                background-color: rgb(0 0 0);
+                transition: .3s cubic-bezier(0, 1, 0, 1);
+            }
+
+            #bg>.bg {
+                opacity: .8;
+                background-image: url(default-image/thumbnail.png);
+                height: 100%;
+                width: 100%;
+                transition: .5s ease-out background-image 2s ease-in-out;
+            }
+        </style>
+        <style>
+            #box>.box {
+                display: grid;
+                grid-template-areas:
+                    "title"
+                    "main"
+                ;
+                grid-template-rows: 25px 1fr;
+            }
+
+            #title {
+                grid-area: title;
+            }
+
+            #main {
+                grid-area: main;
+            }
+        </style>
+        <style>
+            #title {
+                display: grid;
+                grid-template-areas:
+                    "txt btn"
+                ;
+                grid-template-columns: 1fr auto;
+            }
+
+            #title>.txt {
+                grid-area: txt;
+            }
+
+            #title>.btn {
+                gap: btn;
+            }
+        </style>
+        <style>
+            #main {
+                z-index: 1;
+            }
+
+            #title {
+                z-index: 2;
+            }
+        </style>
+        <style>
+            #box {
+                z-index: 2;
+            }
+        </style>
+    </div>
+
+    <div id="close-ask">
+        <div class="q bdft-blur">確認退出?</div>
+        <div class="a">
+            <div class="no">手滑了</div>
+            <div class="hide">隱藏這個視窗</div>
+            <div class="yes">是的，沒錯</div>
+        </div>
+        <style>
+            #close-ask {
+                top: 50%;
+                left: 50%;
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                transform: translate(-50%, -50%);
+                pointer-events: none;
+                background-color: #0003;
+                opacity: 0;
+                z-index: 3;
+            }
+
+            #close-ask>.q {
+                transform: translate(0%, -100%);
+                position: relative;
+                font-size: 30px;
+                padding: 10px;
+                text-align: center;
+                background-color: #0008;
+                transition: .6s cubic-bezier(0, .5, 0, 1);
+                box-shadow: 5px 0 20px #0008;
+            }
+
+            #close-ask>.a {
+                display: flex;
+                justify-content: center;
+                transform: translate(-100%, -50%);
+                width: 80%;
+                top: 50%;
+                position: absolute;
+                left: 10%;
+                background-color: #0008;
+                font-size: 30px;
+                padding: 0px;
+                text-align: center;
+            }
+
+            #close-ask>.a>* {
+                flex-grow: 1;
+                float: left;
+                cursor: pointer;
+                padding: 10px;
+                background-color: #0008;
+            }
+
+            #close-ask>.a>.yes:hover {
+                background-color: #f004;
+                flex-grow: 8;
+            }
+
+            #close-ask>.a>.hide:hover {
+                background-color: #00f4;
+                flex-grow: 8;
+            }
+
+            #close-ask>.a>.no:hover {
+                background-color: #0f04;
+                flex-grow: 8;
+            }
+        </style>
+    </div>
+
+    <style>
+        * {
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            -khtml-user-select: none;
+            user-select: none;
+        }
+    </style>
+
+    <style>
+        #close-bg.close {
+            opacity: 1;
+        }
+
+        #close-bg>.bg.close {
+            opacity: 1;
+        }
+
+        #box.close {
+            transform: translate(-50%, -100%) scale(.75);
+            pointer-events: none;
+            box-shadow: 5px 5px 20px #0008;
+        }
+
+        #close-ask.close {
+            pointer-events: all;
+            opacity: 1;
+        }
+
+        #close-ask>.a.close {
+            transform: translate(-0%, -50%);
+        }
+
+        #close-ask>.q.close {
+            -webkit-app-region: drag;
+            transform: translate(0%, 40%);
+        }
+    </style>
+</body>
+
+</html>
